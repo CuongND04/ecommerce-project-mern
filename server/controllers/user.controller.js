@@ -98,9 +98,31 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
   );
 });
+
+const logout = asyncHandler(async (req, res) => {
+  const cookie = req.cookies;
+  if (!cookie || !cookie.refreshToken)
+    throw new Error("No refresh token in cookies");
+  // Xóa refresh token ở db
+  await User.findOneAndUpdate(
+    { refreshToken: cookie.refreshToken },
+    { refreshToken: "" },
+    { new: true }
+  );
+  // Xóa refresh token ở cookie trình duyệt
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+  });
+  return res.status(200).json({
+    success: true,
+    mes: "Logout is done",
+  });
+});
 module.exports = {
   register,
   login,
   getCurrent,
   refreshAccessToken,
+  logout,
 };
