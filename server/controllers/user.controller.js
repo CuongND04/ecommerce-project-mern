@@ -12,7 +12,7 @@ const register = asyncHandler(async (req, res) => {
   // if (user) {
   //   throw new Error("User has existed");
   // } else {
-  const newUser = await User.create(req.body);
+  const newUser = await Users.create(req.body);
   return res.status(200).json({
     success: newUser ? true : false,
     mes: newUser,
