@@ -52,14 +52,24 @@ const getListProducts = asyncHandler(async (req, res) => {
     const sortBy = req.query.sort.split(",").join(" ");
     queryCommand = queryCommand.sort(sortBy);
   }
+  // Fields limiting : chỉ trả về những field được gọi
+  if (req.query.fields) {
+    const fields = req.query.fields.split(",").join(" ");
+    queryCommand = queryCommand.select(fields);
+  }
+  // Pagination
+  const page = +req.query.page || 1;
+  const limit = +req.query.limit || process.env.LIMIT_PRODUCTS;
+  const skip = (page - 1) * limit;
+  queryCommand.skip(skip).limit(limit);
 
   // Excute Query
   queryCommand
     .then(async (response) => {
       const counts = await Product.find(formatedQueries).countDocuments();
       return res.status(200).json({
-        success: response ? true : false,
         counts,
+        success: response ? true : false,
         products: response ? response : "Cannot get products",
       });
     })
@@ -89,10 +99,49 @@ const deleteProduct = asyncHandler(async (req, res) => {
     deletedProduct: deletedProduct ? deletedProduct : "Cannot delete product",
   });
 });
+
+const ratings = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const { star, comment, pid } = req.body;
+  if (!star || !pid) throw new Error("Missing inputs");
+  const ratingProduct = await Product.findById(pid);
+  // hàm find trả về object ratings có _id
+  const alreadyRating = ratingProduct?.ratings?.find(
+    (item) => item.postedBy.toString() === _id
+  );
+  if (alreadyRating) {
+    // update star and comment
+    await Product.updateOne(
+      {
+        ratings: { $elemMatch: alreadyRating },
+      },
+      {
+        $set: { "ratings.$.star": star, "ratings.$.comment": comment },
+      },
+      { new: true }
+    );
+    return res.status(200).json({
+      status: true,
+    });
+  } else {
+    // add star and comment
+    await Product.findByIdAndUpdate(
+      pid,
+      {
+        $push: { ratings: { star, comment, postedBy: _id } },
+      },
+      { new: true }
+    );
+    return res.status(200).json({
+      status: true,
+    });
+  }
+});
 module.exports = {
   createProduct,
   getOneProduct,
   getListProducts,
   updateProduct,
   deleteProduct,
+  ratings,
 };

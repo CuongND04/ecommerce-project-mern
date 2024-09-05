@@ -61,8 +61,8 @@ const login = asyncHandler(async (req, res) => {
     });
     return res.status(200).json({
       success: true,
-      userData: userData,
       accessToken,
+      userData: userData,
     });
   } else {
     throw new Error("Invalid credentials!");
