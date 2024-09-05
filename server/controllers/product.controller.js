@@ -120,9 +120,6 @@ const ratings = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json({
-      status: true,
-    });
   } else {
     // add star and comment
     await Product.findByIdAndUpdate(
@@ -132,10 +129,21 @@ const ratings = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json({
-      status: true,
-    });
   }
+  // sum ratings
+  const updatedProduct = await Product.findById(pid);
+  const ratingCount = updatedProduct.ratings.length;
+  const sumRatings = updatedProduct.ratings.reduce(
+    (sum, item) => sum + +item.star,
+    0
+  );
+  updatedProduct.totalRatings =
+    Math.round((sumRatings * 10) / ratingCount) / 10;
+  await updatedProduct.save();
+  return res.status(200).json({
+    status: true,
+    updatedProduct,
+  });
 });
 module.exports = {
   createProduct,
