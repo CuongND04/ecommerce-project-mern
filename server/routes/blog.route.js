@@ -8,6 +8,6 @@ router.put("/like/:bid", verifyAccessToken, blog.likeBlog);
 router.put("/dislike/:bid", verifyAccessToken, blog.dislikeBlog);
 
 router.put("/:bid", [verifyAccessToken, isAdmin], blog.updateBlog);
-router.get("/:bid", blog.getBlog);
+router.get("/one/:bid", blog.getBlog);
 router.delete("/:bid", [verifyAccessToken, isAdmin], blog.deleteBlog);
 module.exports = router;
