@@ -145,6 +145,11 @@ const ratings = asyncHandler(async (req, res) => {
     updatedProduct,
   });
 });
+
+const uploadImageProduct = asyncHandler(async (req, res) => {
+  console.log(req.file);
+  return res.json("OKE");
+});
 module.exports = {
   createProduct,
   getOneProduct,
@@ -152,4 +157,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   ratings,
+  uploadImageProduct,
 };
