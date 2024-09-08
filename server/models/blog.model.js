@@ -29,7 +29,7 @@ var blogSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    thumb: {
+    image: {
       type: String,
       default:
         "https://i.pinimg.com/564x/59/f0/d0/59f0d0067c5d04c5db5f92f517767002.jpg",

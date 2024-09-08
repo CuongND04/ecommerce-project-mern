@@ -11,8 +11,8 @@ router.put("/ratings", verifyAccessToken, product.ratings);
 router.put(
   "/uploadimage/:pid",
   [verifyAccessToken, isAdmin],
-  uploader.single("images"),
-  product.uploadImageProduct
+  uploader.array("images", 10),
+  product.uploadImagesProduct
 );
 router.put("/:pid", [verifyAccessToken, isAdmin], product.updateProduct);
 router.delete("/:pid", [verifyAccessToken, isAdmin], product.deleteProduct);
