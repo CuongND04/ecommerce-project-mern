@@ -1,3 +1,5 @@
+import icons from "./icons";
+const { AiFillStar, AiOutlineStar } = icons;
 // chuyển tên tiếng việt thành slug không dấu
 export const createSlug = (string) =>
   string
@@ -9,3 +11,17 @@ export const createSlug = (string) =>
 
 export const formatMoney = (number) =>
   Number(number.toFixed(1)).toLocaleString();
+
+export const renderStarFromNumber = (number) => {
+  if (!Number(number)) return;
+  // 4 => [1,1,1,1,0]
+  number = Math.round(number);
+  const stars = [];
+  for (let i = 0; i < +number; i++) {
+    stars.push(<AiFillStar color="orange" />);
+  }
+  for (let i = 5; i > +number; i--) {
+    stars.push(<AiOutlineStar color="orange" />);
+  }
+  return stars;
+};
