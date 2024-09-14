@@ -23,7 +23,7 @@ const Product = ({ productData, isNew }) => {
       >
         <div className="w-full relative">
           {isShowOption && (
-            <div class="absolute bottom-[-10px] left-0 right-0 flex justify-center gap-2 animate-slide-top ">
+            <div className="absolute bottom-[-10px] left-0 right-0 flex justify-center gap-2 animate-slide-top ">
               <SelectOption icon={<AiFillEye />} />
               <SelectOption icon={<AiOutlineMenu />} />
               <SelectOption icon={<BsFillSuitHeartFill />} />

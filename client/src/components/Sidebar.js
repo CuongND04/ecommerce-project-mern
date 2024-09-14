@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { apiGetCategories } from "../apis/app";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import { createSlug } from "../ultils/helpers";
 // để lấy một biến trong store của redx dùng selector
 import { useSelector } from "react-redux";
 const Sidebar = () => {
   const { categories } = useSelector((state) => state.app);
-  console.log(categories);
   return (
     <div className="flex flex-col border">
       {categories?.map((el) => (

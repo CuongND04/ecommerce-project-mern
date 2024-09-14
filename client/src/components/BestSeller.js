@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { apiGetProducts } from "../apis/product";
 import Product from "./Product";
 import Slider from "react-slick";
+
+import laptop1 from "../assets/laptop1.png";
+import laptop2 from "../assets/laptop2.png";
 const tabs = [
   { id: 1, name: "best sellers" },
   { id: 2, name: "new arrivals" },
@@ -58,12 +61,16 @@ const BestSeller = () => {
         <Slider {...settings}>
           {products?.map((el) => (
             <Product
-              key={el.id}
+              key={el.slug}
               productData={el}
               isNew={activeTab === 1 ? false : true}
             />
           ))}
         </Slider>
+      </div>
+      <div className="w-full flex gap-4 mt-6">
+        <img src={laptop1} alt="banner" className="flex-1 object-contain" />
+        <img src={laptop2} alt="banner" className="flex-1 object-contain" />
       </div>
     </>
   );

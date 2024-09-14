@@ -12,16 +12,16 @@ export const createSlug = (string) =>
 export const formatMoney = (number) =>
   Number(number.toFixed(1)).toLocaleString();
 
-export const renderStarFromNumber = (number) => {
+export const renderStarFromNumber = (number, size) => {
   if (!Number(number)) return;
   // 4 => [1,1,1,1,0]
   number = Math.round(number);
   const stars = [];
   for (let i = 0; i < +number; i++) {
-    stars.push(<AiFillStar color="orange" />);
+    stars.push(<AiFillStar key={i} color="orange" size={size || 16} />);
   }
   for (let i = 5; i > +number; i--) {
-    stars.push(<AiOutlineStar color="orange" />);
+    stars.push(<AiOutlineStar key={i} color="orange" size={size || 16} />);
   }
   return stars;
 };
