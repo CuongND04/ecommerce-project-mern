@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ProductCart } from "./";
+import { ProductCard } from "./";
 import { apiGetProducts } from "../apis";
 
 const FeatureProduct = () => {
@@ -22,7 +22,7 @@ const FeatureProduct = () => {
       </h3>
       <div className="flex flex-wrap mt-[15px] my-5">
         {products?.map((el, index) => (
-          <ProductCart
+          <ProductCard
             key={index}
             image={el.thumb}
             title={el.title}
