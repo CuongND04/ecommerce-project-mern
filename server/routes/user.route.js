@@ -4,11 +4,13 @@ const { verifyAccessToken, isAdmin } = require("../middlewares/verifyToken");
 const user = require("../controllers/user.controller");
 
 router.post("/register", user.register);
+// link trong email mặc định là method get nên phải để ở đây là get
+router.get('/finalregister/:token', user.finalRegister)
 router.post("/login", user.login);
 router.get("/current", verifyAccessToken, user.getCurrent);
 router.post("/refreshtoken", user.refreshAccessToken);
 router.get("/logout", user.logout);
-router.get("/forgotpassword", user.forgotPassword);
+router.post("/forgotpassword", user.forgotPassword);
 router.put("/resetpassword", user.resetPassword);
 
 router.get("/", [verifyAccessToken, isAdmin], user.getUsers);

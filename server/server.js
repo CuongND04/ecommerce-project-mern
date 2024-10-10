@@ -11,6 +11,8 @@ app.use(
   cors({
     origin: process.env.CLIENT_URL,
     method: ["POST", "GET", "PUT", "DELETE"],
+    // thêm để nó lưu token vào cookie trình duyệt, giải quyết cors
+    credentials: true
   })
 );
 app.use(cookieParser());

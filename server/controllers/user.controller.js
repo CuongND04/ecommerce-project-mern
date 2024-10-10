@@ -7,30 +7,70 @@ const {
 } = require("../middlewares/jwt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+// hàm tạo ra token bằng thư viện uniquid
+const makeToken = require("uniqid")
+
+
 
 const register = asyncHandler(async (req, res) => {
-  const { email, password, firstname, lastname } = req.body;
-  // check input
-  if (!email || !password || !lastname || !firstname)
+  // kiểm tra đầu vào xem có thiếu trường nào ko
+  const { email, password, firstname, lastname, mobile } = req.body;
+  if (!email || !password || !lastname || !firstname || !mobile) {
     return res.status(400).json({
       success: false,
-      mes: "Missing inputs",
-    });
-  // check exist email
+      mes: 'Missing inputs'
+    })
+  }
+  // kiểm tra xem email đã tồn tại chưa
   const user = await User.findOne({ email });
   if (user) {
-    throw new Error("User has existed");
+    throw new Error('User has existed');
   } else {
-    const newUser = await User.create(req.body);
-    return res.status(200).json({
-      success: newUser ? true : false,
-      mes: newUser
-        ? "Register successfully. Please go login"
-        : "Something went wrong",
-    });
+    // tạo token thông qua thu viện
+    const token = makeToken();
+    // lưu dữ liệu bước đầu đăng ký vào trong cookie
+    res.cookie('dataregister', { ...req.body, token }, { httpOnly: true, maxAge: 15 * 60 * 1000 });
+    // nếu nó bấm vào link URL_SERVER nó sẽ chạy đến final register
+    const html = `Xin vui lòng click vào link dưới đây để hoàn tất quá trình đăng ký. Link này sẽ hết hạn sau 15 phút kể từ bây giờ. 
+    <a href=${process.env.URL_SERVER}/api/user/finalregister/${token}>Click here</a>`
+    // gửi email đến người dùng
+    await sendMail({ email, html, subject: 'Hoàn tất đăng ký Digital World' })
+    return res.json({
+      success: true,
+      mes: "Please check your email to active account"
+    })
   }
-});
+})
 
+// bước cuối này kiểm tra token được gửi đến qua link trong email có giống 
+// với token lưu trong cookie không
+const finalRegister = asyncHandler(async (req, res) => {
+  // lấy cookie
+  const cookie = req.cookies;
+  // lấy token trong router được gửi lên
+  const { token } = req.params;
+  // nếu không có cookie hoặc token trong email không giống
+  if (!cookie || cookie?.dataregister?.token !== token) {
+    // dù đúng hay sai thì vẫn phải xóa thằng cookie đi, vì nó là otp
+    res.clearCookie('dataregister');
+
+    return res.redirect(`${process.env.CLIENT_URL}/finalregister/failed`);
+  }
+  // tạo user mới
+  const newUser = await User.create({
+    email: cookie?.dataregister?.email,
+    password: cookie?.dataregister?.password,
+    mobile: cookie?.dataregister?.mobile,
+    firstname: cookie?.dataregister?.firstname,
+    lastname: cookie?.dataregister?.lastname
+  });
+  res.clearCookie('dataregister')
+  if (newUser) {
+    return res.redirect(`${process.env.CLIENT_URL}/finalregister/success`);
+  } else {
+    return res.redirect(`${process.env.CLIENT_URL}/finalregister/failed`)
+  }
+})
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -134,7 +174,7 @@ const logout = asyncHandler(async (req, res) => {
 // Change password
 
 const forgotPassword = asyncHandler(async (req, res) => {
-  const { email } = req.query;
+  const { email } = req.body;
   if (!email) throw new Error("Missing email");
   const user = await User.findOne({ email });
   if (!user) throw new Error("User not found");
@@ -143,7 +183,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   await user.save();
 
   const html = `Xin vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn.Link này sẽ hết hạn sau 15 phút kể từ bây giờ. 
-    <a href=${process.env.URL_SERVER}/api/user/reset-password/${resetToken}>Click here</a>`;
+    <a href=${process.env.CLIENT_URL}/reset-password/${resetToken}>Click here</a>`;
   const data = {
     email,
     html,
@@ -151,8 +191,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
   };
   const rs = await sendMail(data);
   return res.status(200).json({
-    success: true,
-    rs,
+    success: rs.response?.includes('OK') ? true : false,
+    mes: rs.response?.includes('OK') ? 'Check your email address' : 'Something went wrong, please try again'
   });
 });
 
@@ -309,4 +349,5 @@ module.exports = {
   updateUserByAdmin,
   updateUserAddress,
   updateCart,
+  finalRegister
 };
